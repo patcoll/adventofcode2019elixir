@@ -43,7 +43,9 @@ defmodule Fuel do
     case fuel_needed_for_mass(mass) do
       fuel when fuel > 0 ->
         fuel + total_fuel_needed_for_mass(fuel)
-      _ -> 0
+
+      _ ->
+        0
     end
   end
 end

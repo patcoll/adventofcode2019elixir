@@ -1,12 +1,6 @@
 version: 2.1
 orbs:
   elixir: coletiv/elixir@0.1.2
-# executors:
-#   default:
-#     docker:
-#       - image: circleci/elixir:1.9.4
-#         environment:
-#           MIX_ENV: test
 jobs:
   test:
     executor:

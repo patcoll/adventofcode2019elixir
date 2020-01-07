@@ -1,10 +1,22 @@
 version: 2.1
 orbs:
-  elixir: coletiv/elixir@0.1.2
-parameters:
-  elixir-version: 1.9.4
+  rust: coletiv/elixir@0.1.2
+# executors:
+#   default:
+#     docker:
+#       - image: circleci/elixir:1.9.4
+#         environment:
+#           MIX_ENV: test
+jobs:
+  test:
+    executor:
+      name: rust/default
+      parameters:
+        elixir-version: 1.9.4
+    steps:
+      - elixir/build-and-test:
+          check-format: true
 workflows:
   build:
     jobs:
-      - elixir/build-and-test:
-          check-format: true
+      - test

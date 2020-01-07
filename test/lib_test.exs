@@ -6,7 +6,7 @@ defmodule LibTest do
       Path.expand("data/d01.txt", __DIR__)
       |> File.read!()
       |> String.trim()
-      |> String.split()
+      |> String.split("\n", trim: true)
       |> Enum.map(&String.to_integer/1)
 
     total =
@@ -22,7 +22,7 @@ defmodule LibTest do
       Path.expand("data/d01.txt", __DIR__)
       |> File.read!()
       |> String.trim()
-      |> String.split()
+      |> String.split("\n", trim: true)
       |> Enum.map(&String.to_integer/1)
 
     total =
@@ -31,5 +31,20 @@ defmodule LibTest do
       |> Enum.sum()
 
     assert total == 4_974_428
+  end
+
+  test :day_02 do
+    input =
+      Path.expand("data/d02.txt", __DIR__)
+      |> File.read!()
+      |> String.trim()
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+      |> List.replace_at(1, 12)
+      |> List.replace_at(2, 2)
+
+    output = Program.run(input)
+
+    assert output |> Enum.at(0) == 9_706_670
   end
 end

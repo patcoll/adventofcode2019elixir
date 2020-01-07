@@ -21,7 +21,7 @@ defmodule Program do
           result =
             input
             |> Enum.slice(index + 1, 2)
-            |> Enum.map(&(Enum.at(input, &1)))
+            |> Enum.map(&Enum.at(input, &1))
             |> Enum.sum()
 
           {:ok, List.replace_at(input, result_index, result), 4}
@@ -32,7 +32,7 @@ defmodule Program do
           result =
             input
             |> Enum.slice(index + 1, 2)
-            |> Enum.map(&(Enum.at(input, &1)))
+            |> Enum.map(&Enum.at(input, &1))
             |> Enum.reduce(1, &*/2)
 
           {:ok, List.replace_at(input, result_index, result), 4}

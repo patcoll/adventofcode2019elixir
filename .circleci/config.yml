@@ -11,11 +11,11 @@ jobs:
   test:
     executor:
       name: elixir/default
-      parameters:
-        elixir-version: 1.9.4
+      elixir-version: 1.9.4
     steps:
-      - elixir/build-and-test:
-          check-format: true
+      - elixir/build
+      - elixir/check-format
+      - elixir/test
 workflows:
   build:
     jobs:

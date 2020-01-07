@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  rust: coletiv/elixir@0.1.2
+  elixir: coletiv/elixir@0.1.2
 # executors:
 #   default:
 #     docker:
@@ -10,7 +10,7 @@ orbs:
 jobs:
   test:
     executor:
-      name: rust/default
+      name: elixir/default
       parameters:
         elixir-version: 1.9.4
     steps:

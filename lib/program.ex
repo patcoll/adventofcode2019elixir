@@ -21,7 +21,7 @@ defmodule Program do
           result =
             input
             |> Enum.slice(index + 1, 2)
-            |> Enum.map(&Enum.at(input, &1))
+            |> Enum.map(&Enum.at(input, &1, 0))
             |> Enum.sum()
 
           {:ok, List.replace_at(input, result_index, result), 4}
@@ -48,5 +48,33 @@ defmodule Program do
       :halt ->
         output
     end
+  end
+
+  def run_to_get_output(input, desired_output)
+      when is_list(input) and is_integer(desired_output) do
+    0..99
+    |> Enum.flat_map(fn i ->
+      0..99
+      |> Enum.map(fn j ->
+        code =
+          input
+          |> List.replace_at(1, i)
+          |> List.replace_at(2, j)
+
+        case run(code) |> Enum.at(0) do
+          o when o == desired_output ->
+            {:ok, {i, j}}
+
+          _ ->
+            {:error, nil}
+        end
+      end)
+    end)
+    |> Enum.find(fn res ->
+      case res do
+        {:ok, _} -> true
+        _ -> false
+      end
+    end)
   end
 end

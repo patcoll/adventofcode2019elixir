@@ -1,6 +1,8 @@
 version: 2.1
 orbs:
   elixir: coletiv/elixir@0.1.2
+parameters:
+  elixir-version: 1.9.4
 workflows:
   build:
     jobs:

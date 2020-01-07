@@ -10,7 +10,7 @@ defmodule Program do
   3500
 
   """
-  def run(input, index \\ 0) when is_list(input) do
+  def run(input, index \\ 0) when is_list(input) and is_integer(index) do
     opcode_number = input |> Enum.at(index)
 
     {status, output, length} =
@@ -38,14 +38,14 @@ defmodule Program do
           {:ok, List.replace_at(input, result_index, result), 4}
 
         99 ->
-          {:error, input, 1}
+          {:halt, input, 1}
       end
 
     case status do
       :ok ->
         run(output, index + length)
 
-      :error ->
+      :halt ->
         output
     end
   end

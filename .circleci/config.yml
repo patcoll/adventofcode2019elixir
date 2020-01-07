@@ -1,0 +1,8 @@
+version: 2.1
+orbs:
+  elixir: coletiv/elixir@0.1.2
+workflows:
+  build:
+    jobs:
+      - elixir/build-and-test:
+          check-format: true

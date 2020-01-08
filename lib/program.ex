@@ -76,4 +76,26 @@ defmodule Program do
         {:error, nil}
     end
   end
+
+  def run_to_get_output2(input, desired_output)
+      when is_list(input) and is_integer(desired_output) do
+    result =
+      Permutations.shuffle(0..99, 2)
+      |> Enum.find(fn [i, j] ->
+        code =
+          input
+          |> List.replace_at(1, i)
+          |> List.replace_at(2, j)
+
+        run(code) |> Enum.at(0) == desired_output
+      end)
+
+    case result do
+      [i, j] ->
+        {:ok, {i, j}}
+
+      _ ->
+        {:error, nil}
+    end
+  end
 end

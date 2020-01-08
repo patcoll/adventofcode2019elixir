@@ -35,7 +35,7 @@ defmodule Program do
             input
             |> Enum.slice(index + 1, 2)
             |> Enum.map(&Enum.at(input, &1, 0))
-            |> Enum.reduce(1, &*/2)
+            |> Enum.reduce(&*/2)
 
           {:ok, List.replace_at(input, result_index, result), index + 4}
 

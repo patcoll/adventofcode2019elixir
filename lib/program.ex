@@ -15,6 +15,7 @@ defmodule Program do
 
     {status, output, length} =
       case opcode_number do
+        # add
         1 ->
           result_index = input |> Enum.at(index + 3)
 
@@ -26,17 +27,19 @@ defmodule Program do
 
           {:ok, List.replace_at(input, result_index, result), 4}
 
+        # multiply
         2 ->
           result_index = input |> Enum.at(index + 3)
 
           result =
             input
             |> Enum.slice(index + 1, 2)
-            |> Enum.map(&Enum.at(input, &1))
+            |> Enum.map(&Enum.at(input, &1, 0))
             |> Enum.reduce(1, &*/2)
 
           {:ok, List.replace_at(input, result_index, result), 4}
 
+        # halt
         99 ->
           {:halt, input, 1}
       end

@@ -13,7 +13,7 @@ defmodule Program do
   def run(input, index \\ 0) when is_list(input) and is_integer(index) do
     opcode_number = input |> Enum.at(index)
 
-    {status, output, length} =
+    {status, output, new_index} =
       case opcode_number do
         # add
         1 ->
@@ -25,7 +25,7 @@ defmodule Program do
             |> Enum.map(&Enum.at(input, &1, 0))
             |> Enum.sum()
 
-          {:ok, List.replace_at(input, result_index, result), 4}
+          {:ok, List.replace_at(input, result_index, result), index + 4}
 
         # multiply
         2 ->
@@ -37,16 +37,16 @@ defmodule Program do
             |> Enum.map(&Enum.at(input, &1, 0))
             |> Enum.reduce(1, &*/2)
 
-          {:ok, List.replace_at(input, result_index, result), 4}
+          {:ok, List.replace_at(input, result_index, result), index + 4}
 
         # halt
         99 ->
-          {:halt, input, 1}
+          {:halt, input, nil}
       end
 
     case status do
       :ok ->
-        run(output, index + length)
+        run(output, new_index)
 
       :halt ->
         output

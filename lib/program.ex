@@ -55,29 +55,25 @@ defmodule Program do
 
   def run_to_get_output(input, desired_output)
       when is_list(input) and is_integer(desired_output) do
-    0..99
-    |> Enum.flat_map(fn i ->
-      0..99
-      |> Enum.map(fn j ->
+    options = for i <- 0..99, j <- 0..99, do: {i, j}
+
+    result =
+      options
+      |> Enum.find(fn {i, j} ->
         code =
           input
           |> List.replace_at(1, i)
           |> List.replace_at(2, j)
 
-        case run(code) |> Enum.at(0) do
-          o when o == desired_output ->
-            {:ok, {i, j}}
-
-          _ ->
-            {:error, nil}
-        end
+        run(code) |> Enum.at(0) == desired_output
       end)
-    end)
-    |> Enum.find(fn res ->
-      case res do
-        {:ok, _} -> true
-        _ -> false
-      end
-    end)
+
+    case result do
+      {_, _} ->
+        {:ok, result}
+
+      _ ->
+        {:error, nil}
+    end
   end
 end

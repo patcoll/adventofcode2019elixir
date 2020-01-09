@@ -1,4 +1,6 @@
 defmodule Grid do
+  @directions 'UDLR'
+
   @type point :: {integer, integer}
   @type path :: {char, integer}
   @type route :: [point]
@@ -13,13 +15,10 @@ defmodule Grid do
   iex> Grid.move({'U', 2})
   [{0, 0}, {0, 1}, {0, 2}]
 
-  iex> Grid.move({1, 2}, {'L', 5})
-  [{1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}]
-
-  iex> Grid.move([{1, 2}], "L5")
-  [{1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}]
-
   # Used for simpler `reduce` compatibility.
+  iex> Grid.move("L5", [])
+  [{0, 0}, {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}]
+
   iex> Grid.move("L5", [{0, 0}, {0, 1}, {0, 2}])
   [{0, 0}, {0, 1}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}, {-5, 2}]
 
@@ -40,31 +39,23 @@ defmodule Grid do
   @spec move(path) :: route
   def move(path) when is_tuple(path), do: move({0, 0}, path)
 
-  @spec move(point, path) :: route
-  def move(point, path) when is_tuple(point) and is_tuple(path), do: move([point], path)
-
-  @spec move(route, String.t()) :: route
-  def move(points, str) when is_list(points) and is_binary(str) do
-    move(points, path(str))
-  end
-
   @spec move(String.t(), route) :: route
   def move(str, points) when is_list(points) and is_binary(str) do
     move(points, path(str))
   end
 
   @spec move(route, path) :: route
-  def move(points, path) when is_list(points) and length(points) == 0 and is_tuple(path) do
-    move(path)
+  def move([] = _points, {_, _} = path) do
+    move([{0, 0}], path)
   end
 
   @spec move(path, route) :: route
-  def move(path, points) when is_list(points) and length(points) > 0 and is_tuple(path) do
+  def move({_, _} = path, [_ | _] = points) do
     move(points, path)
   end
 
   @spec move(route, path) :: route
-  def move(points, path) when is_list(points) and length(points) > 0 and is_tuple(path) do
+  def move([_ | _] = points, {_, _} = path) do
     {dir, count} = path
 
     {last_x, last_y} = points |> List.last()
@@ -103,8 +94,7 @@ defmodule Grid do
 
   """
   @spec path(list) :: path
-  def path(list) when is_list(list) and length(list) > 1 do
-    [dir | rest] = list
+  def path([dir | rest]) when dir in @directions do
     {[dir], List.to_integer(rest)}
   end
 
@@ -150,7 +140,7 @@ defmodule Grid do
 
   """
   @spec route([route]) :: integer
-  def closest_distance_to_origin(routes) when is_list(routes) and length(routes) > 1 do
+  def closest_distance_to_origin([_ | _] = routes) do
     routes
     |> Enum.map(&MapSet.new/1)
     |> Enum.reduce(&MapSet.intersection(&1, &2))

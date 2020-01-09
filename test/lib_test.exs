@@ -335,5 +335,14 @@ defmodule LibTest do
   intersection?
   """
   test :day_03 do
+    distance =
+      Path.expand("data/d03.txt", __DIR__)
+      |> File.read!()
+      |> String.trim()
+      |> String.split("\n")
+      |> Enum.map(&Grid.route/1)
+      |> Grid.closest_distance_to_origin()
+
+    assert distance == 375
   end
 end

@@ -119,12 +119,43 @@ defmodule Grid do
   ## Examples
   iex> Grid.route("R2,U2")
   [{0, 0}, {1, 0}, {2, 0}, {2, 1}, {2, 2}]
+  iex> Grid.route("L2, U10")
+  [{0, 0}, {-1, 0}, {-2, 0}, {-2, 1}, {-2, 2}, {-2, 3}, {-2, 4}, {-2, 5}, {-2, 6}, {-2, 7}, {-2, 8}, {-2, 9}, {-2, 10}]
 
   """
   @spec route(String.t()) :: route
   def route(str) when is_binary(str) do
     str
-    |> String.split(",", trim: true)
+    |> String.split(",")
+    |> Enum.map(&String.trim/1)
     |> Enum.reduce([], &Grid.move/2)
+  end
+
+  @doc """
+  Take a string with comma-separated paths and return a full route list with all points.
+
+  ## Examples
+  iex> Grid.closest_distance_to_origin(
+  ...>   [Grid.route("L2, U10"), Grid.route("U2, L3, U2, R3, U2, L3")]
+  ...> )
+  4
+  iex> Grid.closest_distance_to_origin(
+  ...>   [Grid.route("R75,D30,R83,U83,L12,D49,R71,U7,L72"), Grid.route("U62,R66,U55,R34,D71,R55,D58,R83")]
+  ...> )
+  159
+  iex> Grid.closest_distance_to_origin(
+  ...>   [Grid.route("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"), Grid.route("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")]
+  ...> )
+  135
+
+  """
+  @spec route([route]) :: integer
+  def closest_distance_to_origin(routes) when is_list(routes) and length(routes) > 1 do
+    routes
+    |> Enum.map(&MapSet.new/1)
+    |> Enum.reduce(&MapSet.intersection(&1, &2))
+    |> MapSet.difference(MapSet.new([{0, 0}]))
+    |> Enum.map(fn {x, y} -> abs(x) + abs(y) end)
+    |> Enum.min()
   end
 end

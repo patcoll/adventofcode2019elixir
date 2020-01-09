@@ -12,8 +12,8 @@ defmodule Grid do
   iex> Grid.move("R2")
   [{0, 0}, {1, 0}, {2, 0}]
 
-  iex> Grid.move({'U', 2})
-  [{0, 0}, {0, 1}, {0, 2}]
+  iex> Grid.move("R2") |> Grid.move("U2")
+  [{0, 0}, {1, 0}, {2, 0}, {2, 1}, {2, 2}]
 
   # Used for simpler `reduce` compatibility.
   iex> Grid.move("L5", [])
@@ -34,10 +34,12 @@ defmodule Grid do
   """
 
   @spec move(String.t()) :: route
-  def move(str) when is_binary(str), do: move(path(str))
+  def move(str) when is_binary(str), do: move([], path(str))
 
-  @spec move(path) :: route
-  def move(path) when is_tuple(path), do: move({0, 0}, path)
+  @spec move(route, String.t()) :: route
+  def move(points, str) when is_list(points) and is_binary(str) do
+    move(points, path(str))
+  end
 
   @spec move(String.t(), route) :: route
   def move(str, points) when is_list(points) and is_binary(str) do

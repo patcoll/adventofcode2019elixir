@@ -15,34 +15,17 @@ defmodule Grid do
   iex> Grid.move("R2") |> Grid.move("U2")
   [{0, 0}, {1, 0}, {2, 0}, {2, 1}, {2, 2}]
 
-  # Used for simpler `reduce` compatibility.
-  iex> Grid.move("L5", [])
-  [{0, 0}, {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}]
-
-  iex> Grid.move("L5", [{0, 0}, {0, 1}, {0, 2}])
-  [{0, 0}, {0, 1}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}, {-5, 2}]
-
   iex> Grid.move([], {'L', 5})
   [{0, 0}, {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}]
-
-  # Used for simpler `reduce` compatibility.
-  iex> Grid.move({'L', 5}, [{1, 2}])
-  [{1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}]
 
   iex> Grid.move([{1, 2}], {'L', 5})
   [{1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}]
   """
 
-  @spec move(String.t()) :: route
-  def move(str) when is_binary(str), do: move([], path(str))
-
   @spec move(route, String.t()) :: route
-  def move(points, str) when is_list(points) and is_binary(str) do
-    move(points, path(str))
-  end
+  def move(points \\ [], str)
 
-  @spec move(String.t(), route) :: route
-  def move(str, points) when is_list(points) and is_binary(str) do
+  def move(points, str) when is_list(points) and is_binary(str) do
     move(points, path(str))
   end
 
@@ -51,15 +34,8 @@ defmodule Grid do
     move([{0, 0}], path)
   end
 
-  @spec move(path, route) :: route
-  def move({_, _} = path, [_ | _] = points) do
-    move(points, path)
-  end
-
   @spec move(route, path) :: route
-  def move([_ | _] = points, {_, _} = path) do
-    {dir, count} = path
-
+  def move([_ | _] = points, {dir, count}) do
     {last_x, last_y} = points |> List.last()
 
     add =
@@ -80,7 +56,7 @@ defmodule Grid do
         end
       end)
 
-    points |> Enum.concat(add)
+    points ++ add
   end
 
   @doc """
@@ -95,7 +71,7 @@ defmodule Grid do
   {'U', 2}
 
   """
-  @spec path(list) :: path
+  @spec path(nonempty_list) :: path
   def path([dir | rest]) when dir in @directions do
     {[dir], List.to_integer(rest)}
   end
@@ -120,7 +96,7 @@ defmodule Grid do
     str
     |> String.split(",")
     |> Enum.map(&String.trim/1)
-    |> Enum.reduce([], &Grid.move/2)
+    |> Enum.reduce([], &Grid.move(&2, &1))
   end
 
   def intersection([_ | _] = routes) do

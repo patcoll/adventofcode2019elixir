@@ -266,12 +266,6 @@ defmodule LibTest do
     assert i == 25
     assert j == 52
     assert i * 100 + j == 2552
-
-    {:ok, {i, j}} = Program.run_to_get_output2(input, 19_690_720)
-
-    assert i == 25
-    assert j == 52
-    assert i * 100 + j == 2552
   end
 
   @doc """

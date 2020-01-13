@@ -199,9 +199,9 @@ defmodule LibTest do
       |> List.replace_at(1, 12)
       |> List.replace_at(2, 2)
 
-    output = Program.run(input)
+    code = Program.run_code(input).code
 
-    assert output |> Enum.at(0) == 9_706_670
+    assert code |> Enum.at(0) == 9_706_670
   end
 
   @doc """
@@ -558,5 +558,19 @@ defmodule LibTest do
   tests, what diagnostic code does the program produce?
   """
   test :day_05 do
+    code =
+      Path.expand("data/d05.txt", __DIR__)
+      |> File.read!()
+      |> String.trim()
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+
+    output =
+      %Program{code: code}
+      |> Program.with_input(1)
+      |> Program.run()
+      |> Program.output()
+
+    assert output === 16_574_641
   end
 end

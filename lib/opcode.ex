@@ -4,7 +4,17 @@ defmodule Opcode do
   @position_mode 0
   @immediate_mode 1
 
-  @lengths %{1 => 4, 2 => 4, 3 => 2, 4 => 2, 99 => 1}
+  @lengths %{
+    1 => 4,
+    2 => 4,
+    3 => 2,
+    4 => 2,
+    5 => 3,
+    6 => 3,
+    7 => 4,
+    8 => 4,
+    99 => 1
+  }
 
   defstruct number: 99, modes: [], pos: 0, length: 1
 
@@ -78,5 +88,9 @@ defmodule Opcode do
           n
       end
     end)
+  end
+
+  def new_pos(%{pos: pos, length: length}) do
+    pos + length
   end
 end

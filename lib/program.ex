@@ -34,10 +34,41 @@ defmodule Program do
   2000
   iex> %Program{code: [4,0,99]} |> Program.run |> Program.output
   4
+
+  # does input equal 8? if so, output 1, else output 0
+  iex> %Program{code: [3,9,8,9,10,9,4,9,99,-1,8]} |> Program.with_input(8) |> Program.run |> Program.output
+  1
+  iex> %Program{code: [3,9,8,9,10,9,4,9,99,-1,8]} |> Program.with_input(7) |> Program.run |> Program.output
+  0
+  iex> %Program{code: [3,3,1108,-1,8,3,4,3,99]} |> Program.with_input(8) |> Program.run |> Program.output
+  1
+  iex> %Program{code: [3,3,1108,-1,8,3,4,3,99]} |> Program.with_input(7) |> Program.run |> Program.output
+  0
+
+  # is input less than 8? if so, output 1, else output 0
+  iex> %Program{code: [3,9,7,9,10,9,4,9,99,-1,8]} |> Program.with_input(7) |> Program.run |> Program.output
+  1
+  iex> %Program{code: [3,9,7,9,10,9,4,9,99,-1,8]} |> Program.with_input(8) |> Program.run |> Program.output
+  0
+  iex> %Program{code: [3,3,1107,-1,8,3,4,3,99]} |> Program.with_input(7) |> Program.run |> Program.output
+  1
+  iex> %Program{code: [3,3,1107,-1,8,3,4,3,99]} |> Program.with_input(8) |> Program.run |> Program.output
+  0
+
+  # output 0 if the input was zero or 1 if the input was non-zero
+  iex> %Program{code: [3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]} |> Program.with_input(0) |> Program.run |> Program.output
+  0
+  iex> %Program{code: [3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]} |> Program.with_input(11) |> Program.run |> Program.output
+  1
+  iex> %Program{code: [3,3,1105,-1,9,1101,0,0,12,4,12,99,1]} |> Program.with_input(0) |> Program.run |> Program.output
+  0
+  iex> %Program{code: [3,3,1105,-1,9,1101,0,0,12,4,12,99,1]} |> Program.with_input(11) |> Program.run |> Program.output
+  1
   """
   def run(program) do
     opcode_number = program.code |> Enum.at(program.pos)
     opcode = Opcode.from(opcode_number, program.pos)
+    new_pos = Opcode.new_pos(opcode)
 
     {status, program} =
       case opcode.number do
@@ -53,7 +84,7 @@ defmodule Program do
 
           {
             :cont,
-            %{program | code: code, pos: program.pos + opcode.length}
+            %{program | code: code, pos: new_pos}
           }
 
         # multiply
@@ -68,7 +99,7 @@ defmodule Program do
 
           {
             :cont,
-            %{program | code: code, pos: program.pos + opcode.length}
+            %{program | code: code, pos: new_pos}
           }
 
         # input
@@ -86,7 +117,7 @@ defmodule Program do
                 program.code
                 |> List.replace_at(result_index, value)
 
-              {:cont, %{program | code: code, pos: program.pos + opcode.length, input: new_input}}
+              {:cont, %{program | code: code, pos: new_pos, input: new_input}}
           end
 
         # output
@@ -95,7 +126,53 @@ defmodule Program do
 
           new_output = program.output ++ [value]
 
-          {:cont, %{program | pos: program.pos + opcode.length, output: new_output}}
+          {:cont, %{program | pos: new_pos, output: new_output}}
+
+        # jump-if-true
+        5 ->
+          [value, store_pos] = Opcode.values(opcode, program)
+
+          if value !== 0 do
+            {:cont, %{program | pos: store_pos}}
+          else
+            {:cont, %{program | pos: new_pos}}
+          end
+
+        # jump-if-false
+        6 ->
+          [value, store_pos] = Opcode.values(opcode, program)
+
+          if value === 0 do
+            {:cont, %{program | pos: store_pos}}
+          else
+            {:cont, %{program | pos: new_pos}}
+          end
+
+        # less-than
+        7 ->
+          [_, _, result_index] = Opcode.indexes(opcode, program)
+          [first, second | _] = Opcode.values(opcode, program)
+
+          value = if first < second, do: 1, else: 0
+
+          code =
+            program.code
+            |> List.replace_at(result_index, value)
+
+          {:cont, %{program | code: code, pos: new_pos}}
+
+        # equals
+        8 ->
+          [_, _, result_index] = Opcode.indexes(opcode, program)
+          [first, second | _] = Opcode.values(opcode, program)
+
+          value = if first === second, do: 1, else: 0
+
+          code =
+            program.code
+            |> List.replace_at(result_index, value)
+
+          {:cont, %{program | code: code, pos: new_pos}}
 
         # halt
         99 ->

@@ -8,9 +8,9 @@ defmodule Orbit do
   """
   def from(str) when is_binary(str) do
     str
-    |> String.trim
+    |> String.trim()
     |> String.split(")")
-    |> Enum.map(&(%Mass{name: &1}))
+    |> Enum.map(&%Mass{name: &1})
     |> Enum.reduce(fn orbiting, orbited ->
       [orbited, orbiting, %Orbit{orbited: orbited, orbiting: orbiting}]
     end)

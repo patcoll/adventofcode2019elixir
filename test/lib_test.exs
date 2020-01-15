@@ -736,9 +736,9 @@ defmodule LibTest do
     direct_and_indirect =
       Path.expand("data/d06.txt", __DIR__)
       |> File.read!()
-      |> Orbits.from
-      |> Orbits.indirect
-      |> Enum.count
+      |> Orbits.from()
+      |> Orbits.indirect()
+      |> Enum.count()
 
     assert direct_and_indirect == 315_757
   end

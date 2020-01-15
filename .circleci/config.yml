@@ -10,6 +10,7 @@ jobs:
       - elixir/build
       - elixir/check-format
       - elixir/test
+      - run: 'mix test --only ignore'
 workflows:
   build:
     jobs:

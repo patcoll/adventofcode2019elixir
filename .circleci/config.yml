@@ -9,6 +9,7 @@ jobs:
     steps:
       - elixir/build
       - elixir/check-format
+      - run: mix dialyzer --plt
       - elixir/dialyzer
       - elixir/test
       - run: 'mix test --only ignore'

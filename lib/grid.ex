@@ -2,7 +2,7 @@ defmodule Grid do
   @directions 'UDLR'
 
   @type point :: {integer, integer}
-  @type path :: {char, integer}
+  @type path :: {charlist, integer}
   @type route :: [point]
 
   @doc """
@@ -22,19 +22,19 @@ defmodule Grid do
   [{1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-3, 2}, {-4, 2}]
   """
 
-  @spec move(route, String.t()) :: route
+  @spec move(route, path | String.t() | nonempty_charlist) :: route
   def move(points \\ [], str)
 
   def move(points, str) when is_list(points) and is_binary(str) do
     move(points, path(str))
   end
 
-  @spec move(route, path) :: route
+  # @spec move(route, path) :: route
   def move([] = _points, {_, _} = path) do
     move([{0, 0}], path)
   end
 
-  @spec move(route, path) :: route
+  # @spec move(route, path) :: route
   def move([_ | _] = points, {dir, count}) do
     {last_x, last_y} = points |> List.last()
 
@@ -71,12 +71,12 @@ defmodule Grid do
   {'U', 2}
 
   """
-  @spec path(nonempty_list) :: path
+  @spec path(String.t() | nonempty_charlist) :: path
   def path([dir | rest]) when dir in @directions do
     {[dir], List.to_integer(rest)}
   end
 
-  @spec path(String.t()) :: path
+  # @spec path(String.t()) :: path
   def path(str) when is_binary(str) do
     path(String.to_charlist(str))
   end

@@ -801,6 +801,7 @@ defmodule LibTest do
   object YOU are orbiting to the object SAN is orbiting? (Between the objects
   they are orbiting - not between YOU and SAN.)
   """
+  @tag :ignore
   test :day_06_part_2 do
     transfers =
       Path.expand("data/d06.txt", __DIR__)

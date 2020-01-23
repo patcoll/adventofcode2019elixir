@@ -66,13 +66,17 @@ defmodule Orbits do
 
     defaults =
       masses
-      |> Enum.map(&%{&1 => []})
+      |> Enum.map(&%{&1 => MapSet.new()})
       |> Enum.reduce(&Map.merge/2)
 
     orbit_map =
       orbits
       |> Enum.reduce(defaults, fn orbit, map ->
-        %{map | orbit.orbited => Map.get(map, orbit.orbited) ++ [orbit.orbiting]}
+        %{
+          map
+          | orbit.orbited =>
+              MapSet.union(Map.get(map, orbit.orbited), MapSet.new([orbit.orbiting]))
+        }
       end)
 
     orbit_map
@@ -104,7 +108,7 @@ defmodule Orbits do
         ])
 
       processed_children =
-        case length(orbit_map[mass_orbiting_root]) do
+        case MapSet.size(orbit_map[mass_orbiting_root]) do
           0 ->
             MapSet.new()
 
@@ -180,35 +184,33 @@ defmodule Orbits do
 
     start_mass = %Mass{name: start_item}
 
-    unvisited_neighbor_filter = fn mass ->
-      !Enum.member?(start, mass.name)
-    end
-
     is_candidate = fn path -> List.last(path) == finish end
 
     neighbors =
       orbit_map
       |> Map.get(start_mass)
-      |> Enum.filter(unvisited_neighbor_filter)
+      |> MapSet.difference(MapSet.new(Enum.map(start, &%Mass{name: &1})))
 
     neighbors
-    |> Flow.from_enumerable()
-    |> Flow.partition()
-    |> Flow.reduce(fn -> all end, fn mass_orbiting_start, all ->
-      orbit_path = start ++ [mass_orbiting_start.name]
+    |> Enum.map(fn mass_orbiting_start ->
+      Task.async(fn ->
+        orbit_path = start ++ [mass_orbiting_start.name]
 
-      all_plus_current = all ++ [orbit_path]
+        all_plus_current = all ++ [orbit_path]
 
-      from_children =
-        find_paths(orbit_map, orbit_path, finish, all_plus_current)
-        |> Flow.from_enumerable()
-        |> Flow.partition()
-        |> Flow.filter(is_candidate)
-        |> Enum.to_list()
+        if mass_orbiting_start.name != finish do
+          from_children =
+            find_paths(orbit_map, orbit_path, finish, all_plus_current)
+            |> Enum.filter(is_candidate)
 
-      all_plus_current ++ from_children
+          all_plus_current ++ from_children
+        else
+          [orbit_path]
+        end
+      end)
     end)
-    |> Flow.filter(is_candidate)
-    |> Enum.to_list()
+    |> Enum.map(&Task.await(&1, 15_000))
+    |> Enum.reduce(all, &Kernel.++/2)
+    |> Enum.filter(is_candidate)
   end
 end

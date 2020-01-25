@@ -1,10 +1,6 @@
 defmodule Permutations do
-  def shuffle(list), do: shuffle(list, length(list))
+  def permutations([]), do: [[]]
 
-  def shuffle([], _), do: [[]]
-  def shuffle(_, 0), do: [[]]
-
-  def shuffle(list, i) do
-    for x <- list, y <- shuffle(list, i - 1), do: [x | y]
-  end
+  def permutations(list),
+    do: for(elem <- list, rest <- permutations(list -- [elem]), do: [elem | rest])
 end

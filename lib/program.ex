@@ -1,5 +1,5 @@
 defmodule Program do
-  defstruct code: [%Opcode{}.number], pos: 0, input: [], output: []
+  defstruct code: [%Opcode{}.number], pos: 0, input: [], output: [], finished: false
 
   @doc """
   iex> Program.run_code([99]).pos
@@ -176,7 +176,7 @@ defmodule Program do
 
         # halt
         99 ->
-          {:halt, program}
+          {:halt, %{program | finished: true}}
       end
 
     case status do

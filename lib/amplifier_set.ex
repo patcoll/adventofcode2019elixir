@@ -1,4 +1,4 @@
-defmodule Amplifiers do
+defmodule AmplifierSet do
   @doc """
   """
   def run_permutation(
@@ -82,7 +82,7 @@ defmodule Amplifiers do
 
   @doc """
   iex> %Program{code: [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]}
-  ...> |> Amplifiers.find_best_phase_settings(5)
+  ...> |> AmplifierSet.find_best_phase_settings(5)
   {[4,3,2,1,0], 43210}
   """
   @spec find_best_phase_settings(%Program{}, integer) :: {[integer], integer}

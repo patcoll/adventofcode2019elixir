@@ -113,13 +113,6 @@ defmodule AmplifierSetTest do
       |> Program.output()
 
     assert output == 65210
-
-    # {permutation, output} =
-    #   %Program{code: code}
-    #   |> AmplifierSet.find_best_phase_settings(5)
-    #
-    # assert permutation == [1, 0, 4, 3, 2]
-    # assert output == 65210
   end
 
   test :find_best_phase_settings do
@@ -162,7 +155,8 @@ defmodule AmplifierSetTest do
 
     {permutation, output} =
       %Program{code: code}
-      |> AmplifierSet.run_permutation([1, 0, 4, 3, 2], 5, false)
+      |> AmplifierSet.new(%{amplifier_count: 5, feedback_mode: false})
+      |> AmplifierSet.run_permutation([1, 0, 4, 3, 2])
 
     assert permutation == [1, 0, 4, 3, 2]
     assert output == 65210
@@ -201,14 +195,16 @@ defmodule AmplifierSetTest do
 
     {permutation, output} =
       program
-      |> AmplifierSet.run_permutation([0, 1, 2, 3, 4], 5, false)
+      |> AmplifierSet.new(%{amplifier_count: 5, feedback_mode: false})
+      |> AmplifierSet.run_permutation([0, 1, 2, 3, 4])
 
     assert permutation == [0, 1, 2, 3, 4]
     assert output == 54321
 
     {permutation, output} =
       program
-      |> AmplifierSet.find_best_phase_settings(5, false)
+      |> AmplifierSet.new(%{amplifier_count: 5, feedback_mode: false})
+      |> AmplifierSet.find_best_phase_settings()
 
     assert permutation == [0, 1, 2, 3, 4]
     assert output == 54321
@@ -251,7 +247,8 @@ defmodule AmplifierSetTest do
 
     {permutation, output} =
       program
-      |> AmplifierSet.run_permutation([9, 8, 7, 6, 5], 5, true)
+      |> AmplifierSet.new(%{amplifier_count: 5, feedback_mode: true})
+      |> AmplifierSet.run_permutation([9, 8, 7, 6, 5])
 
     assert permutation == [9, 8, 7, 6, 5]
     assert output == 139_629_729
@@ -290,11 +287,13 @@ defmodule AmplifierSetTest do
       5
     ]
 
-    program = %Program{code: code}
+    amp_set =
+      %Program{code: code}
+      |> AmplifierSet.new(%{amplifier_count: 5, feedback_mode: true})
 
     {permutation, output} =
-      program
-      |> AmplifierSet.find_best_phase_settings(5, true)
+      amp_set
+      |> AmplifierSet.find_best_phase_settings()
 
     assert permutation == [9, 8, 7, 6, 5]
     assert output == 139_629_729

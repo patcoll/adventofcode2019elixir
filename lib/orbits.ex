@@ -99,24 +99,43 @@ defmodule Orbits do
   """
   @spec get_minimal_orbital_transfer_count(universe, mass, mass) :: integer
   def get_minimal_orbital_transfer_count(universe, start, finish) do
-    # TODO: this looks really familiar; intersection_shortest_path could solve this too after a refactor.
     routes =
       [start, finish]
       |> Enum.map(&find_path_to_root(universe, &1))
 
-    intersection =
-      routes
-      |> Enum.map(&MapSet.new/1)
-      |> Enum.reduce(&MapSet.intersection(&1, &2))
+    use_find_divergence = Application.fetch_env!(:adventofcode2019elixir, :use_find_divergence)
 
-    intersection
-    |> Enum.map(fn intersected_coord ->
+    if use_find_divergence do
       routes
-      |> Enum.map(fn route ->
-        route |> Enum.find_index(&(&1 == intersected_coord))
+      |> Enum.map(&Enum.reverse/1)
+      |> Enum.reduce(fn finish_path, start_path ->
+        {_, start_path_to_parent, finish_path_to_parent} =
+          find_divergence(start_path, finish_path)
+
+        [start_path_to_parent, finish_path_to_parent]
+        |> Enum.map(&Enum.count/1)
+        |> Enum.sum()
       end)
-      |> Enum.sum()
-    end)
-    |> Enum.min()
+    else
+      # TODO: this looks really familiar; intersection_shortest_path could solve this too after a refactor.
+      intersection =
+        routes
+        |> Enum.map(&MapSet.new/1)
+        |> Enum.reduce(&MapSet.intersection/2)
+
+      intersection
+      |> Enum.map(fn intersected_coord ->
+        routes
+        |> Enum.map(fn route ->
+          route |> Enum.find_index(&(&1 == intersected_coord))
+        end)
+        |> Enum.sum()
+      end)
+      |> Enum.min()
+    end
   end
+
+  def find_divergence(path1, path2, parent \\ nil)
+  def find_divergence([h | t1], [h | t2], _parent), do: find_divergence(t1, t2, h)
+  def find_divergence(path1, path2, parent), do: {parent, path1, path2}
 end

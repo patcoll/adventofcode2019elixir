@@ -106,10 +106,10 @@ defmodule Orbits do
     use_find_divergence = Application.fetch_env!(:adventofcode2019elixir, :use_find_divergence)
 
     if use_find_divergence do
-      reverse_paths = routes |> Enum.map(&Enum.reverse/1)
+      [start_path, finish_path | _] = routes
 
       {_, start_path_to_parent, finish_path_to_parent} =
-        apply(Orbits, :find_divergence, reverse_paths)
+        find_divergence(Enum.reverse(start_path), Enum.reverse(finish_path))
 
       [start_path_to_parent, finish_path_to_parent]
       |> Enum.map(&Enum.count/1)

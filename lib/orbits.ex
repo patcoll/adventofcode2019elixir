@@ -106,16 +106,14 @@ defmodule Orbits do
     use_find_divergence = Application.fetch_env!(:adventofcode2019elixir, :use_find_divergence)
 
     if use_find_divergence do
-      routes
-      |> Enum.map(&Enum.reverse/1)
-      |> Enum.reduce(fn finish_path, start_path ->
-        {_, start_path_to_parent, finish_path_to_parent} =
-          find_divergence(start_path, finish_path)
+      reverse_paths = routes |> Enum.map(&Enum.reverse/1)
 
-        [start_path_to_parent, finish_path_to_parent]
-        |> Enum.map(&Enum.count/1)
-        |> Enum.sum()
-      end)
+      {_, start_path_to_parent, finish_path_to_parent} =
+        apply(Orbits, :find_divergence, reverse_paths)
+
+      [start_path_to_parent, finish_path_to_parent]
+      |> Enum.map(&Enum.count/1)
+      |> Enum.sum()
     else
       # TODO: this looks really familiar; intersection_shortest_path could solve this too after a refactor.
       intersection =

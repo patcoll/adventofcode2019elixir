@@ -99,12 +99,11 @@ defmodule Grid do
     |> Enum.reduce([], &Grid.move(&2, &1))
   end
 
-  def intersection([_ | _] = routes) do
+  def intersection([_, _ | _] = routes) do
     routes
     |> Enum.map(&MapSet.new/1)
     |> Enum.reduce(&MapSet.intersection(&1, &2))
     |> MapSet.difference(MapSet.new([{0, 0}]))
-    |> Enum.to_list()
   end
 
   @doc """

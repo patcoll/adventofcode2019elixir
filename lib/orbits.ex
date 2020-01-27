@@ -1,5 +1,10 @@
 defmodule Orbits do
   @type universe :: MapSet.t()
+  @type mass :: String.t()
+  @type orbited :: mass
+  @type orbiting :: mass
+  @type orbit :: {orbited, orbiting}
+  @type orbit_map :: %{required(orbiting) => orbited}
 
   @doc """
   iex> Orbits.from("COM)B  B)C")
@@ -11,17 +16,15 @@ defmodule Orbits do
     |> String.trim()
     |> String.split()
     |> Enum.map(&Orbit.from/1)
-    |> Enum.reduce(MapSet.new(), fn orbit, set ->
-      MapSet.union(set, MapSet.new(orbit))
-    end)
+    |> Enum.map(&MapSet.new/1)
+    |> Enum.reduce(&MapSet.union/2)
   end
 
+  @spec split(universe) :: {[mass], [orbit]}
   def split(universe) do
     universe
     |> Enum.split_with(fn
-      # _ -> false
       "" <> _ -> true
-      # {_, _} -> false
       _ -> false
     end)
   end
@@ -30,7 +33,7 @@ defmodule Orbits do
   iex> Orbits.from("COM)A  A)B  B)C") |> Orbits.map
   %{"A" => "COM", "B" => "A", "C" => "B"}
   """
-  @spec map(universe) :: map
+  @spec map(universe) :: orbit_map
   def map(universe) do
     {_, orbits} = universe |> split
 
@@ -74,13 +77,18 @@ defmodule Orbits do
   ...> |> Orbits.indirect_count
   42
   """
-  @spec indirect_count(universe, String.t()) :: integer
-  def indirect_count(universe, start \\ "COM") do
+  @spec indirect_count(universe) :: integer
+  def indirect_count(universe) do
     {masses, _} = universe |> split
 
     masses
-    |> Enum.map(&find_path_to_root(universe, &1))
-    |> Enum.map(&Enum.count/1)
+    |> Enum.map(fn mass ->
+      Task.async(fn ->
+        find_path_to_root(universe, mass)
+        |> Enum.count()
+      end)
+    end)
+    |> Enum.map(&Task.await(&1))
     |> Enum.sum()
   end
 
@@ -89,6 +97,7 @@ defmodule Orbits do
   ...> |> Orbits.get_minimal_orbital_transfer_count("YOU", "SAN")
   4
   """
+  @spec get_minimal_orbital_transfer_count(universe, mass, mass) :: integer
   def get_minimal_orbital_transfer_count(universe, start, finish) do
     # TODO: this looks really familiar; intersection_shortest_path could solve this too after a refactor.
     routes =

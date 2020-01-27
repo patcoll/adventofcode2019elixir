@@ -731,14 +731,12 @@ defmodule LibTest do
 
   What is the total number of direct and indirect orbits in your map data?
   """
-  @tag :ignore
   test :day_06 do
     direct_and_indirect =
       Path.expand("data/d06.txt", __DIR__)
       |> File.read!()
       |> Orbits.from()
-      |> Orbits.indirect()
-      |> Enum.count()
+      |> Orbits.indirect_count()
 
     assert direct_and_indirect == 315_757
   end
@@ -801,7 +799,6 @@ defmodule LibTest do
   object YOU are orbiting to the object SAN is orbiting? (Between the objects
   they are orbiting - not between YOU and SAN.)
   """
-  @tag :ignore
   test :day_06_part_2 do
     transfers =
       Path.expand("data/d06.txt", __DIR__)

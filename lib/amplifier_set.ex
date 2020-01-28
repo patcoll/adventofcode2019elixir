@@ -5,8 +5,8 @@ defmodule AmplifierSet do
             value: 0,
             feedback_mode: false
 
-  def new(program, %{} = params \\ %{}) do
-    amp_set = struct!(AmplifierSet, Map.merge(%{program: program}, params))
+  def new(program, params \\ []) when is_list(params) do
+    amp_set = struct!(AmplifierSet, Keyword.merge([program: program], params))
 
     amps =
       1..amp_set.amplifier_count

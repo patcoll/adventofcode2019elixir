@@ -1,4 +1,5 @@
 defmodule Opcode do
+  @default_mode 0
   @default_value 0
 
   @position_mode 0
@@ -62,7 +63,7 @@ defmodule Opcode do
       |> Enum.slice(0..-3)
       |> Enum.map(&List.to_integer([&1]))
 
-    fill_in_empty_modes = for _ <- length(extract_modes)..(length - 2), do: 0
+    fill_in_empty_modes = for _ <- length(extract_modes)..(length - 2), do: @default_mode
 
     modes =
       (fill_in_empty_modes ++ extract_modes)
